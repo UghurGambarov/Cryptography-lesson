@@ -1,48 +1,42 @@
-import random
+import secrets
 
-def XOR(msg,key):
-    xor = ''
-    aShift = decToBin(msg)
-    bShift = decToBin(key)
-    maxL = max(len(aShift), len(bShift))    
-    for i,j in zip(aShift.zfill(maxL),bShift.zfill(maxL)):
-        if i==j:
-            xor +='0'
-        else: xor += '1'
-    return binToDec(xor)
+def encrypt(msg, key):
+    cipher = []
+    for m, k in zip(msg, key):
+        m_bin = decToBin8(ord(m))
+        k_bin = decToBin8(k)
+        x_bin = xorBin(m_bin, k_bin)
+        cipher.append(binToDec(x_bin))
+    return bytes(cipher)
 
-def decToBin(a):
-    if type(a) == str:
-        a = ord(a)
-    if a == 0: return '0'
-    r =[]
-    while a:
-        r.append(str(a%2))
-        a //= 2
-    return "".join(r[::-1])
-
-def binToDec(a):
-    n = len(a)
-    d = 0
-    for i in a:
-        d += 2**(n-1)*int(i)
-        n -= 1
+def binToDec(a): 
+    n = len(a) 
+    d = 0 
+    for i in a: 
+        d += 2**(n-1)*int(i) 
+        n -= 1 
     return d
 
-def encrypt(msg):
-    key = random.randint(1,1000)
-    cipherText = [XOR(c,key) for c in msg]
-    return cipherText, key
+def decToBin8(n):
+    b = ""
+    while n > 0:
+        b = str(n % 2) + b
+        n //= 2
+    return b.zfill(8)
 
-def decrypt(cipterText, key):
-    plainText = "".join([chr(XOR(c, key)) for c in cipterText])
-    return plainText
+def xorBin(a, b):
+    r = ""
+    for i, j in zip(a, b):
+        if i == j: r += "0"
+        else: r += "1"
+    return r
 
-msg = input("Enter message: ")
-cipherT, key = encrypt(msg)
-plain = decrypt(cipherT, key)
+msg = input("Enter your message: ")
+key = secrets.token_bytes(len(msg))
 
-print("Message: ", msg)
-print("Encrypted message: ", "".join([chr(i) for i in cipherT]))
-print("Key: ", key)
-print("Decrypted message: ", plain)
+cipher = encrypt(msg, key)
+plain  = encrypt(cipher.decode("latin1"), key)
+
+print("Key:", key)
+print("Cipher:", cipher)
+print("Decrypted:", plain)
