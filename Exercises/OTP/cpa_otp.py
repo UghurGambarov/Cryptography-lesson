@@ -21,10 +21,3 @@ print("Key:       ", key.hex())
 print("Nonce:     ", nonce.hex())
 print("Encrypted: ", cipher.hex())
 print("Decrypted: ", plain.decode())
-
-# same message encrypted twice => different ciphertext
-_, cipher2 = encrypt(msg, key)
-print("\nSame msg encrypted twice:")
-print("CT1:", cipher.hex())
-print("CT2:", cipher2.hex())
-print("Same?", cipher == cipher2)
