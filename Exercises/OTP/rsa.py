@@ -6,7 +6,7 @@ def is_prime(n):
         if n % i == 0: return False
     return True
 
-def generate_prime(bits=8):
+def generate_prime(bits):
     while True:
         n = random.getrandbits(bits) | 1
         if is_prime(n):
@@ -22,19 +22,27 @@ def mod_inverse(e, phi):
     return x % phi
 
 # Key generation
-p = generate_prime(8)
-q = generate_prime(8)
+p = generate_prime(32)
+q = generate_prime(32)
 while q == p:
-    q = generate_prime(8)
+    q = generate_prime(32)
 
 n   = p * q
 phi = (p - 1) * (q - 1)
-e   = 65537 if 65537 < phi and extended_gcd(65537, phi)[0] == 1 else 3
+e = 65537
+if extended_gcd(e, phi)[0] != 1:
+    e = 3
+    if extended_gcd(e, phi)[0] != 1:
+        raise ValueError("Failed to find valid e")
 d   = mod_inverse(e, phi)
+
 
 print(f"p={p}, q={q}, n={n}, e={e}, d={d}")
 
 msg = int(input("Enter a number to encrypt (must be < n): "))
+
+if msg >= n:
+    raise ValueError("Message must be less than n")
 
 cipher = pow(msg, e, n)
 plain  = pow(cipher, d, n)
